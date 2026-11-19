@@ -1,0 +1,12 @@
+.local/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.env
+*.evtx
+*.etl
+*.pcap
+*.pcapng
+*.zip
+*.tar.gz

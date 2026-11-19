@@ -1,0 +1,40 @@
+# SignalChain SOC Lab — Splunk searches
+# These searches assume the 44-event baseline and the 330-event background
+# dataset were both uploaded into index=main using JSON field extraction.
+# The raw dataset fields lab_id and dataset_type identify these synthetic records.
+
+# 1. Confirm overall event count (expected 374 after both uploads)
+index=main lab_id="signalchain" dataset_type="synthetic"
+| stats count as event_count dc(asset_host) as host_count
+
+# 2. Count the 20 scheduled-task events
+index=main lab_id="signalchain" dataset_type="synthetic" event_id=4698
+| stats count as scheduled_tasks by dataset_type
+
+# 3. List task actions for review. Encoded PowerShell is a signal, not proof of abuse.
+index=main lab_id="signalchain" dataset_type="synthetic" event_id=4698
+| eval encoded_powershell=if(match(coalesce(task_action,""),"(?i)powershell.*-encodedcommand"),"yes","no")
+| table _time asset_host user task_name task_action encoded_powershell
+| sort 0 _time
+
+# 4. CASE-001 authentication timeline (account j.smith)
+index=main lab_id="signalchain" dataset_type="synthetic" asset_host="ws-fin-07" user="j.smith" (event_id=4625 OR event_id=4624 OR event_id=4698)
+| table _time asset_host user source_ip event_id task_name task_action
+| sort 0 _time
+
+# 5. CASE-001 process and connection evidence by shared Sysmon process GUID
+index=main lab_id="signalchain" dataset_type="synthetic" asset_host="ws-fin-07" (event_id=1 OR event_id=3)
+| table _time asset_host user event_id process_guid image command_line destination_ip destination_port
+| sort 0 _time
+
+# 6. CASE-002 10-event timeline, as investigated in the supplied screenshot
+index=main lab_id="signalchain" dataset_type="synthetic" asset_host="ws-ops-09" user="t.chen" (event_id=4625 OR event_id=4624 OR event_id=1 OR event_id=3 OR event_id=4698)
+| eval activity=case(event_id=4625,"Failed login",event_id=4624,"Successful login",event_id=1,"Process creation",event_id=3,"Network connection",event_id=4698,"Scheduled task created")
+| eval detail=case(event_id=4625 OR event_id=4624,source_ip,event_id=1,command_line,event_id=3,destination_ip . ":" . destination_port,event_id=4698,task_name . " | " . task_action)
+| table _time asset_host user event_id activity detail
+| sort 0 _time
+
+# 7. CASE-002 process/network correlation by GUID
+index=main lab_id="signalchain" dataset_type="synthetic" asset_host="ws-ops-09" user="t.chen" (event_id=1 OR event_id=3)
+| table _time asset_host user event_id process_guid image command_line destination_ip destination_port
+| sort 0 _time
