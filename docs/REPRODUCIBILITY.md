@@ -1,13 +1,62 @@
 # Reproducibility notes
 
-The supplied `data/synthetic_events.jsonl` contains 44 synthetic events. The original `tools/generate_background.py` produces 330 additional events in `.local/splunk/signalchain_background.jsonl` and validates its deliberately inserted positive and negative examples.
+## Dataset
 
-The two combined files have 374 records and 20 scheduled-task creation events. The rebuilt `tools/validate_lab.py` checks the basic failed-logon, successful-logon, and encoded-task timing pattern and returns one candidate in the 44-event baseline and two candidates after the expansion.
+The baseline dataset contains 44 synthetic Windows Security and Sysmon events.
 
-These are time-based candidate detections. They do not prove the scheduled task ran, that the account was stolen, or that an action can be attributed to a particular logon session.
+The background generator adds another 330 synthetic events, bringing the combined dataset to 374 records, including 20 scheduled-task creation events.
 
-The previous version of the project had an offline dashboard and a 33-test suite shown in screenshots. The code for that version was not included in the uploaded files assembled here. Do not describe the earlier code as part of this repository. The `tests/` folder here has eight tests for the scripts and data that are actually present.
+The additional events include one suspicious sequence and six negative test scenarios designed to check the correlation logic.
 
-An original exporter expected to import `load_events` from the unavailable `soclab.py`. This repository's `tools/export_to_splunk.py` includes a small local replacement loader so its baseline export works without that missing module.
+## Running the Lab
 
-Splunk queries cannot be tested with Python alone. Run them in your own Splunk installation and document any changes needed to index settings, timestamp extraction, or source types.
+Open PowerShell in the project folder.
+
+Run the Python unit tests:
+
+`py -3 -m unittest discover -s tests -v`
+
+Validate the baseline dataset:
+
+`py -3 tools/validate_lab.py`
+
+Generate the additional events:
+
+`py -3 tools/generate_background.py`
+
+Validate the expanded dataset:
+
+`py -3 tools/validate_lab.py --expanded`
+
+## Expected Results
+
+The current test suite contains eight tests.
+
+The baseline dataset should produce:
+
+- 44 events
+- 1 review candidate
+
+The expanded dataset should produce:
+
+- 374 events
+- 20 scheduled tasks
+- 2 review candidates
+
+The two review candidates correspond to the investigations documented in CASE-001 and CASE-002.
+
+## Detection Limitations
+
+The validation script identifies event sequences based on account, host, source IP, and timestamps.
+
+These correlations identify activity worth investigating. They do not establish that a scheduled task executed or that the activity originated from a particular login session.
+
+The project uses synthetic data, and its findings are limited to the events available in the dataset.
+
+## Project Scope
+
+This repository includes the Python scripts, synthetic datasets, SPL searches, case reports, and eight current validation tests.
+
+The earlier offline dashboard implementation and its 33-test suite are not included in this version.
+
+Splunk queries must be run separately in Splunk to verify their results. The Python tests do not execute SPL searches.
