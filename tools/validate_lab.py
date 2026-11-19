@@ -1,7 +1,4 @@
-"""Lightweight offline checks for the SignalChain synthetic Splunk lab.
-
-This is a reproducibility helper, not a production detection engine. It
-identifies temporal candidates; it cannot prove that a task came from a login.
+""""""Validate synthetic authentication and scheduled-task event sequences."""
 """
 from __future__ import annotations
 
