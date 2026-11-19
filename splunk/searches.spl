@@ -38,3 +38,22 @@ index=main lab_id="signalchain" dataset_type="synthetic" asset_host="ws-ops-09" 
 index=main lab_id="signalchain" dataset_type="synthetic" asset_host="ws-ops-09" user="t.chen" (event_id=1 OR event_id=3)
 | table _time asset_host user event_id process_guid image command_line destination_ip destination_port
 | sort 0 _time
+
+# 8. Failed login -> successful login -> encoded scheduled task
+
+index=main lab_id="signalchain" dataset_type="synthetic"
+(event_id=4625 OR event_id=4624 OR event_id=4698)
+| eval asset_host=lower(coalesce(asset_host,host))
+| eval event_id=tonumber(event_id)
+| eval failed=if(event_id=4625,1,0)
+| sort 0 _time
+| streamstats time_window=5m sum(failed) as recent_failures by asset_host user source_ip
+| eval qualifying_success=if(event_id=4624 AND recent_failures>=5,_time,null())
+| eval qualifying_failures=if(event_id=4624 AND recent_failures>=5,recent_failures,null())
+| eval qualifying_ip=if(event_id=4624 AND recent_failures>=5,source_ip,null())
+| streamstats current=f last(qualifying_success) as login_time last(qualifying_failures) as failures last(qualifying_ip) as login_ip by asset_host user
+| eval seconds_after_success=round(_time-login_time,0)
+| where event_id=4698 AND match(coalesce(task_action,task_content,""),"(?i)powershell.*-encodedcommand") AND seconds_after_success>0 AND seconds_after_success<=300
+| eval detection_result="REVIEW"
+| table _time asset_host user login_ip failures task_name seconds_after_success detection_result
+| sort 0 _time
