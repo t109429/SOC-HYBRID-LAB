@@ -1,7 +1,4 @@
-"""Export synthetic Windows and Sysmon events to JSONL for Splunk ingestion.
-
-The output is saved locally for manual upload to Splunk.
-"""
+"""Export synthetic Windows and Sysmon events to JSONL for Splunk ingestion."""
 from __future__ import annotations
 
 import argparse
@@ -13,8 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def load_events(path: Path) -> list[dict]:
-    """"""Load synthetic JSONL events and assign evidence references.".
-    """
+    """Load synthetic JSONL events and assign evidence references."""
     events: list[dict] = []
     with path.open('r', encoding='utf-8') as stream:
         for line_number, line in enumerate(stream, 1):
