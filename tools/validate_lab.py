@@ -1,5 +1,4 @@
-""""""Validate synthetic authentication and scheduled-task event sequences."""
-"""
+"""Validate synthetic authentication and scheduled-task event sequences."""
 from __future__ import annotations
 
 import argparse
