@@ -1,7 +1,6 @@
-"""Export SignalChain's normalized sample telemetry as Splunk-ready JSON Lines.
+"""Export synthetic Windows and Sysmon events to JSONL for Splunk ingestion.
 
-No Splunk connection, network access, or external commands. The default output
-is under .local/ so a GitHub commit does not accidentally include generated data.
+The output is saved locally for manual upload to Splunk.
 """
 from __future__ import annotations
 
@@ -14,10 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def load_events(path: Path) -> list[dict]:
-    """Load the provided synthetic JSONL data without the unavailable old UI module.
-
-    The original exporter imported this helper from soclab.py. The uploaded
-    project did not include that module, so the export is self-contained here.
+    """"""Load synthetic JSONL events and assign evidence references.".
     """
     events: list[dict] = []
     with path.open('r', encoding='utf-8') as stream:
