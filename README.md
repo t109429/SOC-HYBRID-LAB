@@ -10,8 +10,7 @@ I began with a sample of 44 synthetic Windows Security and Sysmon events. I then
 
 The expanded investigation contains 374 events and 20 scheduled tasks. Two sequences warranted further review; the remaining 18 tasks were not flagged by the lab's correlation search.
 
-![Splunk dashboard for the expanded investigation](screenshots/08_splunk_final_dashboard.png)
-
+![Splunk dashboard for the expanded investigation](screenshots/SignalChain%20SOC%20Detection%20Dashboard.png)
 ## Case investigations
 
 ### Case 001 — Suspicious login and scheduled task
