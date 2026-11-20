@@ -64,8 +64,7 @@ The Splunk portion uses two synthetic JSONL files: the original 44-event export 
 4. Confirm that the combined search returns 374 events without duplicate uploads.
 5. Use the searches in the [Splunk search file](splunk/searches.spl) to examine the two cases and related scheduled tasks.
 
-![Splunk investigation query](screenshots/06_splunk_detection_logic.png)
-
+![Splunk scheduled task review results](screenshots/07_splunk_final_detection_results.png)
 ## Project files
 
 The data folder contains the synthetic baseline and benign-control samples. The tools folder contains the Python helpers and an optional Windows event-export script. The tests folder contains checks for the included scripts and correlation logic.
