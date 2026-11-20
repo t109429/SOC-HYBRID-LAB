@@ -45,7 +45,7 @@ def convert(events: list[dict]) -> list[dict]:
     for event in events:
         row = {key: event[key] for key in FIELDS if key in event}
         row.update(lab_id='signalchain', dataset_type='synthetic',
-                   asset_host=event['host'], evidence_ref=event['_ref'])
+                   asset_host=str(event['host']).lower(), evidence_ref=event['_ref'])
         result.append(row)
     return result
 
